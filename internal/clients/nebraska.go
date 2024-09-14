@@ -7,6 +7,7 @@ package clients
 import (
 	"context"
 	"encoding/json"
+	"os"
 
 	"github.com/crossplane/crossplane-runtime/pkg/resource"
 	"github.com/pkg/errors"
@@ -25,6 +26,9 @@ const (
 	errTrackUsage           = "cannot track ProviderConfig usage"
 	errExtractCredentials   = "cannot extract credentials"
 	errUnmarshalCredentials = "cannot unmarshal nebraska credentials as JSON"
+
+	keyEndpoint      = "endpoint"
+	keyApplicationID = "application_id"
 )
 
 // TerraformSetupBuilder builds Terraform a terraform.SetupFn function which
@@ -62,11 +66,15 @@ func TerraformSetupBuilder(version, providerSource, providerVersion string) terr
 			return ps, errors.Wrap(err, errUnmarshalCredentials)
 		}
 
-		// Set credentials in Terraform provider configuration.
-		/*ps.Configuration = map[string]any{
-			"username": creds["username"],
-			"password": creds["password"],
-		}*/
+		// set provider configuration
+		ps.Configuration = map[string]any{}
+		if v, ok := creds[keyEndpoint]; ok {
+			ps.Configuration[keyEndpoint] = v
+		} else {
+			ps.Configuration[keyEndpoint] = os.Getenv("NEBRASKA_ENDPOINT")
+		}
+
 		return ps, nil
+
 	}
 }

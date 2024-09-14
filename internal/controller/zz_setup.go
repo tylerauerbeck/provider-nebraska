@@ -9,7 +9,8 @@ import (
 
 	"github.com/crossplane/upjet/pkg/controller"
 
-	resource "github.com/tylerauerbeck/provider-nebraska/internal/controller/null/resource"
+	channel "github.com/tylerauerbeck/provider-nebraska/internal/controller/nebraska/channel"
+	group "github.com/tylerauerbeck/provider-nebraska/internal/controller/nebraska/group"
 	providerconfig "github.com/tylerauerbeck/provider-nebraska/internal/controller/providerconfig"
 )
 
@@ -17,7 +18,8 @@ import (
 // the supplied manager.
 func Setup(mgr ctrl.Manager, o controller.Options) error {
 	for _, setup := range []func(ctrl.Manager, controller.Options) error{
-		resource.Setup,
+		channel.Setup,
+		group.Setup,
 		providerconfig.Setup,
 	} {
 		if err := setup(mgr, o); err != nil {

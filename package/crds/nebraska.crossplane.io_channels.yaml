@@ -4,18 +4,18 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.14.0
-  name: resources.null.nebraska.upbound.io
+  name: channels.nebraska.crossplane.io
 spec:
-  group: null.nebraska.upbound.io
+  group: nebraska.crossplane.io
   names:
     categories:
     - crossplane
     - managed
     - nebraska
-    kind: Resource
-    listKind: ResourceList
-    plural: resources
-    singular: resource
+    kind: Channel
+    listKind: ChannelList
+    plural: channels
+    singular: channel
   scope: Cluster
   versions:
   - additionalPrinterColumns:
@@ -34,10 +34,8 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: Resource is the Schema for the Resources API. The null_resource
-          resource implements the standard resource lifecycle but takes no further
-          action.hashicorp. The triggers argument allows specifying an arbitrary set
-          of values that, when changed, will cause the resource to be replaced.
+        description: Channel is the Schema for the Channels API. A release channel
+          that provides a particular package version.
         properties:
           apiVersion:
             description: |-
@@ -57,7 +55,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: ResourceSpec defines the desired state of Resource
+            description: ChannelSpec defines the desired state of Channel
             properties:
               deletionPolicy:
                 default: Delete
@@ -75,14 +73,23 @@ spec:
                 type: string
               forProvider:
                 properties:
-                  triggers:
-                    additionalProperties:
-                      type: string
-                    description: |-
-                      running any associated provisioners.
-                      A map of arbitrary strings that, when changed, will force the null resource to be replaced, re-running any associated provisioners.
-                    type: object
-                    x-kubernetes-map-type: granular
+                  applicationId:
+                    description: ID of the application this channel belongs to.
+                    type: string
+                  arch:
+                    description: Arch. Cannot be changed once created.
+                    type: string
+                  color:
+                    description: Hex color code that informs the color of the channel
+                      in the UI.
+                    type: string
+                  name:
+                    description: Name of the channel. Can be an existing one as long
+                      as the arch is different.
+                    type: string
+                  packageId:
+                    description: The id of the package this channel provides.
+                    type: string
                 type: object
               initProvider:
                 description: |-
@@ -97,14 +104,23 @@ spec:
                   for example because of an external controller is managing them, like an
                   autoscaler.
                 properties:
-                  triggers:
-                    additionalProperties:
-                      type: string
-                    description: |-
-                      running any associated provisioners.
-                      A map of arbitrary strings that, when changed, will force the null resource to be replaced, re-running any associated provisioners.
-                    type: object
-                    x-kubernetes-map-type: granular
+                  applicationId:
+                    description: ID of the application this channel belongs to.
+                    type: string
+                  arch:
+                    description: Arch. Cannot be changed once created.
+                    type: string
+                  color:
+                    description: Hex color code that informs the color of the channel
+                      in the UI.
+                    type: string
+                  name:
+                    description: Name of the channel. Can be an existing one as long
+                      as the arch is different.
+                    type: string
+                  packageId:
+                    description: The id of the package this channel provides.
+                    type: string
                 type: object
               managementPolicies:
                 default:
@@ -273,23 +289,42 @@ spec:
             required:
             - forProvider
             type: object
+            x-kubernetes-validations:
+            - message: spec.forProvider.arch is a required parameter
+              rule: '!(''*'' in self.managementPolicies || ''Create'' in self.managementPolicies
+                || ''Update'' in self.managementPolicies) || has(self.forProvider.arch)
+                || (has(self.initProvider) && has(self.initProvider.arch))'
+            - message: spec.forProvider.name is a required parameter
+              rule: '!(''*'' in self.managementPolicies || ''Create'' in self.managementPolicies
+                || ''Update'' in self.managementPolicies) || has(self.forProvider.name)
+                || (has(self.initProvider) && has(self.initProvider.name))'
           status:
-            description: ResourceStatus defines the observed state of Resource.
+            description: ChannelStatus defines the observed state of Channel.
             properties:
               atProvider:
                 properties:
-                  id:
-                    description: (String) This is set to a random value at create
-                      time.
+                  applicationId:
+                    description: ID of the application this channel belongs to.
                     type: string
-                  triggers:
-                    additionalProperties:
-                      type: string
-                    description: |-
-                      running any associated provisioners.
-                      A map of arbitrary strings that, when changed, will force the null resource to be replaced, re-running any associated provisioners.
-                    type: object
-                    x-kubernetes-map-type: granular
+                  arch:
+                    description: Arch. Cannot be changed once created.
+                    type: string
+                  color:
+                    description: Hex color code that informs the color of the channel
+                      in the UI.
+                    type: string
+                  createdTs:
+                    description: Creation timestamp.
+                    type: string
+                  id:
+                    type: string
+                  name:
+                    description: Name of the channel. Can be an existing one as long
+                      as the arch is different.
+                    type: string
+                  packageId:
+                    description: The id of the package this channel provides.
+                    type: string
                 type: object
               conditions:
                 description: Conditions of the resource.

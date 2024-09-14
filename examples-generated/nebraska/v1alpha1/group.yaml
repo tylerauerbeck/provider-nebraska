@@ -1,0 +1,28 @@
+apiVersion: nebraska.crossplane.io/v1alpha1
+kind: Group
+metadata:
+  annotations:
+    meta.upbound.io/example-id: nebraska/v1alpha1/group
+  labels:
+    testing.upbound.io/example-name: group
+  name: group
+spec:
+  forProvider:
+    channelId: ${nebraska_channel.channel.id}
+    name: custom-group
+
+---
+
+apiVersion: nebraska.crossplane.io/v1alpha1
+kind: Channel
+metadata:
+  annotations:
+    meta.upbound.io/example-id: nebraska/v1alpha1/group
+  labels:
+    testing.upbound.io/example-name: channel
+  name: channel
+spec:
+  forProvider:
+    arch: amd64
+    name: custom-channel
+    packageId: ${data.nebraska_package.package.id}
